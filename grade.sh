@@ -2,8 +2,8 @@ CPATH='.;lib/hamcrest-core-1.3.jar;lib/junit-4.13.2.jar'
 SFOLDER='student_submission'
 
 rm -rf $SFOLDER # clean the student-submission folder
-git clone $1 $SFOLDER #clone into the student-submission folder
-echo 'Finished cloning'
+git clone --quiet $1 $SFOLDER #clone into the student-submission folder
+echo '===========Finished cloning================'
 
 # first check if the student has ListExamples.java
 if [[ -f $SFOLDER/ListExamples.java ]]
@@ -15,13 +15,13 @@ else
     exit 1;
 fi
 
+echo '========Sanity check Done============'
+
 # copy the checker and lib into the student's folder
 cp TestListExamples.java $SFOLDER
 cp -r lib $SFOLDER
 
 cd $SFOLDER
-
-echo $PWD
 
 # compile them, and store error message in the compile.txt file
 javac -cp $CPATH *.java 2> compile.txt
@@ -36,6 +36,9 @@ else
     echo "grade: 0"
     exit 1;
 fi
+echo '========Compile success============'
+
+
 # run the checker and store the result in the result.txt file, and output in the output.txt file
 java -cp $CPATH org.junit.runner.JUnitCore TestListExamples 1>result.txt 0>output.txt
 
@@ -61,6 +64,13 @@ FAIL_COUNT=`grep "Failures:" result.txt | cut -d ',' -f 2 | cut -d ':' -f 2`
 
 # calculate the grade
 echo "Grade: `expr $((100-$FAIL_COUNT*10))`"
+echo '========Grade evaluated============'
+echo '========Failed Cases:==========='
+
+if [[ $FAIL_COUNT = 0 ]]
+then
+    exit 0;
+fi
 
 # display each failed case that matched the pattern [1..9]) in the output.txt file
 # grep the output.txt file, and retain the lines that matched the pattern [1..9])
