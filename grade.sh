@@ -1,7 +1,16 @@
+#modify this environment variable based on the local operating system
 CPATH='.;lib/hamcrest-core-1.3.jar;lib/junit-4.13.2.jar'
 SFOLDER='student_submission'
 
-rm -rf $SFOLDER # clean the student-submission folder
+# check if the student submission folder exists
+if [ -d $SFOLDER ]
+then
+    rm -rf $SFOLDER # clean the student-submission folder
+else 
+    mkdir $SFOLDER # create the student-submission folder
+fi 
+    echo '===========clean up finished================'
+
 git clone --quiet $1 $SFOLDER #clone into the student-submission folder
 echo '===========Finished cloning================'
 
@@ -32,7 +41,7 @@ if [[ `wc -w < compile.txt` = 0 ]]
 then
     echo 'No compile errors'
 else
-    echo 'Compile errors'
+    echo '===========failed to compile============'
     echo "grade: 0"
     exit 1;
 fi
@@ -43,7 +52,7 @@ echo '========Compile success============'
 java -cp $CPATH org.junit.runner.JUnitCore TestListExamples 1>result.txt 0>output.txt
 
 # if th result.txt contains OK, then the test passed
-if [[ `grep "OK" result.txt` = 'OK (1 test)' ]]
+if [[ ` grep "OK" result.txt | cut -d '(' -f 1 ` = "OK " ]]
 then
     echo 'Test passed'
     echo "Grade: 100"
@@ -60,16 +69,17 @@ TEST_COUNT=`grep "Tests run" result.txt | cut -d ':' -f 2 | cut -d ',' -f 1`
 
 # grep the last line of the result.txt file, and retain the second part delimited by ','
 # then retain the second part delimited by ':'
-FAIL_COUNT=`grep "Failures:" result.txt | cut -d ',' -f 2 | cut -d ':' -f 2`
+declare -i FAIL_COUNT=`grep "Failures:" result.txt | cut -d ',' -f 2 | cut -d ':' -f 2`
 
 # calculate the grade
-echo "Grade: `expr $((100-$FAIL_COUNT*10))`"
+echo "Grade: ` expr $(( 100-$FAIL_COUNT*10 )) `"
 echo '========Grade evaluated============'
-echo '========Failed Cases:==========='
 
 if [[ $FAIL_COUNT = 0 ]]
 then
     exit 0;
+else 
+    echo '========Failed Cases:==========='
 fi
 
 # display each failed case that matched the pattern [1..9]) in the output.txt file

@@ -1,7 +1,13 @@
 # grader-review-kiminus
 
-run `bash grade-published <repo-url>` please, don't use the new one. 
+run `bash grade.sh <repo-url>` please
 
-this code is written in the windows environment. To run in MACos, replace `;` in the CPATH to ':'
+this code is written in the windows environment. To run in other OS, replace `;` in the CPATH to `:`
 
-The server code is not tested
+The `ListExamples_crash` and `ListExamples_subtle` are the two custom student submissions. The first one cheated the grader and the second one contains a subtle exception that none of the existing test cases can detect 
+
+### Server
+
+start the server: `java GraderServer <port number>`
+
+grade the submission url: `.../grade?repo=<url>`
